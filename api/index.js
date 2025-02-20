@@ -19,9 +19,10 @@ const client = new Client({
             "--disable-features=site-per-process",
             "--single-process"
         ],
-        headless: true // Required for serverless environments
+        headless: true
     }
 });
+
 
 // Log QR Code (You must scan it in the terminal)
 client.on("qr", (qr) => {
