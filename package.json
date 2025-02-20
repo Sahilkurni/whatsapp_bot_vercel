@@ -1,0 +1,13 @@
+{
+  "name": "whatsapp-bot",
+  "version": "1.0.0",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "whatsapp-web.js": "^1.26.0"
+  }
+}
