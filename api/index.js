@@ -1,14 +1,19 @@
+const fs = require("fs");
+const path = require("path");
 const { Client, LocalAuth } = require("whatsapp-web.js");
-const express = require("express");
-const cors = require("cors");
 
-const app = express();
-app.use(express.json());
-app.use(cors());
+// Define the correct session path inside /tmp (writable in Vercel)
+const SESSION_PATH = "/tmp/.wwebjs_auth";
 
-// Initialize WhatsApp client
+// Ensure the session directory exists
+if (!fs.existsSync(SESSION_PATH)) {
+    fs.mkdirSync(SESSION_PATH, { recursive: true });
+}
+
 const client = new Client({
-    authStrategy: new LocalAuth(),
+    authStrategy: new LocalAuth({
+        dataPath: SESSION_PATH // Use /tmp/ to store session data
+    }),
     puppeteer: {
         args: [
             "--no-sandbox",
@@ -23,37 +28,74 @@ const client = new Client({
     }
 });
 
-
-// Log QR Code (You must scan it in the terminal)
 client.on("qr", (qr) => {
-    console.log("Scan this QR Code:", qr);
+    console.log("QR RECEIVED", qr);
 });
 
-// Ready Event
 client.on("ready", () => {
-    console.log("✅ WhatsApp Bot is Ready!");
+    console.log("Client is ready!");
 });
 
 client.initialize();
 
-// API Route to send messages
-app.post("/api/send-message", async (req, res) => {
-    const { phone, message } = req.body;
 
-    if (!phone || !message) {
-        return res.status(400).json({ error: "Phone and message are required" });
-    }
 
-    try {
-        await client.sendMessage(`${phone}@c.us`, message);
-        res.json({ success: true, message: "Message sent successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to send message", details: error.message });
-    }
-});
+// const { Client, LocalAuth } = require("whatsapp-web.js");
+// const express = require("express");
+// const cors = require("cors");
 
-// Export the app for Vercel
-module.exports = app;
+// const app = express();
+// app.use(express.json());
+// app.use(cors());
+
+// // Initialize WhatsApp client
+// const client = new Client({
+//     authStrategy: new LocalAuth(),
+//     puppeteer: {
+//         args: [
+//             "--no-sandbox",
+//             "--disable-setuid-sandbox",
+//             "--disable-gpu",
+//             "--disable-dev-shm-usage",
+//             "--disable-software-rasterizer",
+//             "--disable-features=site-per-process",
+//             "--single-process"
+//         ],
+//         headless: true
+//     }
+// });
+
+
+// // Log QR Code (You must scan it in the terminal)
+// client.on("qr", (qr) => {
+//     console.log("Scan this QR Code:", qr);
+// });
+
+// // Ready Event
+// client.on("ready", () => {
+//     console.log("✅ WhatsApp Bot is Ready!");
+// });
+
+// client.initialize();
+
+// // API Route to send messages
+// app.post("/api/send-message", async (req, res) => {
+//     const { phone, message } = req.body;
+
+//     if (!phone || !message) {
+//         return res.status(400).json({ error: "Phone and message are required" });
+//     }
+
+//     try {
+//         await client.sendMessage(`${phone}@c.us`, message);
+//         res.json({ success: true, message: "Message sent successfully" });
+//     } catch (error) {
+//         res.status(500).json({ error: "Failed to send message", details: error.message });
+//     }
+// });
+
+// // Export the app for Vercel
+// module.exports = app;
 
 
 
